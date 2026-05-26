@@ -54,6 +54,7 @@ void MainWindow::seedBuiltins() {
             {"snake",    "Snake",    "Classic snake — eat apples, don't hit the walls."},
             {"pong",     "Pong",     "Two-player pong. W/S vs ↑/↓. First to 7 wins."},
             {"breakout", "Breakout", "Smash all the bricks. Multiple levels & speeds."},
+            {"bullscows", "Bulls & Cows", "Guess the 4-digit number. 🐂 = right place, 🐄 = wrong place."},
         };
 
         for (const auto& b : builtins) {

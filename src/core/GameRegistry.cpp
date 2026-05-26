@@ -2,6 +2,7 @@
 #include "games/SnakeGame.h"
 #include "games/PongGame.h"
 #include "games/BreakoutGame.h"
+#include "games/BullsCowsGame.h"
 #include "utils/Logger.h"
 #include "utils/MemoryUtils.h"
 
@@ -13,6 +14,7 @@ void GameRegistry::registerBuiltins() {
         registerGame("snake",   [](QWidget* p) { return new SnakeGame(p);   });
         registerGame("pong",    [](QWidget* p) { return new PongGame(p);    });
         registerGame("breakout",[](QWidget* p) { return new BreakoutGame(p);});
+        registerGame("bullscows", [](QWidget* p) { return new BullsCowsGame(p); });
         LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)));
     } catch (const std::exception& e) {
         LOG_ERROR(TAG, "Failed to register builtin games: " + std::string(e.what()));
