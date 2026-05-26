@@ -78,26 +78,43 @@ cmake --build build-debug --parallel
 gamehub/
 ├── CMakeLists.txt
 ├── README.md
-├── assets/
-│   └── resources.qrc          # Qt resource bundle (icons, etc.)
+|
+├── include/
+|   ├── core/
+|   │   ├── GameBase.h          
+|   │   ├── GameMetadata.h      
+|   │   ├── GameRegistry.h 
+|   │   ├── GameRunner.h   
+|   │   └── Database.h     
+|   ├── games/
+|   │   ├── SnakeGame.h
+|   │   ├── PongGame.h
+|   |   ├── BullsCowsGame.h  
+|   │   └── BreakoutGame.h
+|   |   
+|   └── ui/
+|       ├── MainWindow.h
+|       ├── HubView.h
+|       ├── GameCard.h
+|       ├── CreateGameDialog.h
+|       └── ScoreboardDialog.h
 └── src/
     ├── main.cpp                # Entry point, palette, DB init
     ├── core/
-    │   ├── GameBase.h          # Abstract game interface
-    │   ├── GameMetadata.h      # Plain data struct (id, title, scores…)
-    │   ├── GameRegistry.h/.cpp # Factory: key → GameBase*
-    │   ├── GameRunner.h/.cpp   # 60fps loop, HUD, pause
-    │   └── Database.h/.cpp     # SQLite via Qt SQL
+    │   ├── GameRegistry.cpp 
+    │   ├── GameRunner.cpp   
+    │   └── Database.cpp     
     ├── games/
-    │   ├── SnakeGame.h/.cpp
-    │   ├── PongGame.h/.cpp
-    │   └── BreakoutGame.h/.cpp
+    │   ├── SnakeGame.cpp
+    │   ├── PongGame.cpp
+    │   ├── BullsCowsGame.cpp
+    │   └── BreakoutGame.cpp
     └── ui/
-        ├── MainWindow.h/.cpp       # QStackedWidget: hub ↔ runner
-        ├── HubView.h/.cpp          # Scrollable card grid + header
-        ├── GameCard.h/.cpp         # One card (play / scoreboard / delete)
-        ├── CreateGameDialog.h/.cpp # Register a new game entry
-        └── ScoreboardDialog.h/.cpp # Top-10 score table
+        ├── MainWindow.cpp       
+        ├── HubView.cpp          
+        ├── GameCard.cpp         
+        ├── CreateGameDialog.cpp 
+        └── ScoreboardDialog.cpp 
 ```
 
 ---
@@ -170,6 +187,15 @@ Call `emit gameOver(m_score)` when the game ends — the runner handles the rest
 - Right paddle: ↑ / ↓  
 - First to 7 points wins
 - Ball spin varies with paddle hit position
+
+### 🐂 Bulls & Cows
+- Guess the hidden 4-digit number
+- Each digit is unique
+- 🐂 Bull = correct digit in the correct position
+- 🐄 Cow = correct digit in the wrong position
+- Use logic and deduction to discover the secret number
+- Easy Mode can highlight correctly guessed digits
+- Fewer attempts lead to a higher score
 
 ### 🧱 Breakout
 - Left / Right (or A / D) to move paddle
