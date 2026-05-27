@@ -134,16 +134,17 @@ void BullsCowsGame::submitGuess() {
     row.filled  = true;
 
     // Score: more bulls/cows earlier = more points
-    int points = (row.bulls * 100 + row.cows * 25) * (MAX_TRIES - m_tryIdx);
+    int points = (row.bulls * 50 + row.cows * 25);
     setScore(m_score + points);
 
     ++m_tryIdx;
 
     if (row.bulls == 4) {
+        setScore(m_score - points + (MAX_TRIES - m_tryIdx + 1) * 1000);
         m_state = State::Won;
         m_running = false;
         QMetaObject::invokeMethod(this, [this]{
-            emit gameOver(m_score);
+            emit gameOver(m_score);  // bonus for winning early
         }, Qt::QueuedConnection);
     } else if (m_tryIdx >= MAX_TRIES) {
         m_state = State::Lost;
