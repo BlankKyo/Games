@@ -54,3 +54,6 @@ logs/
 
 # powershell
 *.ps1
+
+# extra
+*.diff
