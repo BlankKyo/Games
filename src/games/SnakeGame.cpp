@@ -45,8 +45,9 @@ void SnakeGame::reset() {
         m_snake.push_back({COLS / 2 - 2, ROWS / 2});
         m_dir = m_nextDir = {1, 0};
         m_accum = 0.0;
-        m_speed = 0.24;
-        m_alive  = true;
+        m_speed = 0.12;
+        m_dead  = false;
+        m_deadTimer = 0.0;
         setScore(0);
         spawnFood();
     } catch (const std::exception& e) {
@@ -70,6 +71,8 @@ void SnakeGame::spawnFood() {
 bool SnakeGame::checkCollision() const {
     try {
         const QPoint& head = m_snake.front();
+        if (head.x() < 0 || head.x() >= COLS || head.y() < 0 || head.y() >= ROWS)
+            return true;
         for (int i = 1; i < (int)m_snake.size(); ++i)
             if (m_snake[i] == head) return true;
         return false;
@@ -81,26 +84,24 @@ bool SnakeGame::checkCollision() const {
 
 void SnakeGame::update(double dt) {
     try {
-        // change death check so that we can emit gameOver signal with final score after death animation
-        if (!m_alive) {
-            LOG_DEBUG(TAG, "Snake died. Final score: " + std::to_string(m_score));
-            emit gameOver(m_score);
+        if (!m_alive) return;
+
+        if (m_dead) {
+            m_deadTimer += dt;
+            if (m_deadTimer > 1.8) emit gameOver(m_score);
             return;
         }
+
         m_accum += dt;
         if (m_accum < m_speed) return;
         m_accum -= m_speed;
 
         m_dir = m_nextDir;
-        QPoint head = m_snake.front();
-
-        int newX = (head.x() + m_dir.dx + COLS) % COLS;
-        int newY = (head.y() + m_dir.dy + ROWS) % ROWS;
-
-        QPoint newHead(newX, newY);
+        QPoint newHead = m_snake.front() + QPoint(m_dir.dx, m_dir.dy);
         m_snake.push_front(newHead);
 
         if (checkCollision()) {
+            m_dead = true;
             m_alive = false;
             return;
         }
@@ -155,13 +156,13 @@ void SnakeGame::paintEvent(QPaintEvent*) {
             const QPoint& seg = m_snake[i];
             int alpha = 120 + 135 * i / std::max(1, n-1);
             QColor col = (i == 0) ? QColor("#00ff88") : QColor(0, 180, 80, alpha);
-            if (!m_alive) col.setAlpha(80);
+            if (m_dead) col.setAlpha(80);
             p.setBrush(col);
             p.drawRoundedRect(seg.x()*CELL+1, seg.y()*CELL+1, CELL-2, CELL-2, 4, 4);
         }
 
         // Death overlay
-        if (!m_alive) {
+        if (m_dead) {
             p.fillRect(rect(), QColor(0, 0, 0, 120));
             p.setPen(QColor("#ff4d6d"));
             QFont f; f.setPixelSize(36); f.setBold(true);

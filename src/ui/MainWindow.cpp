@@ -79,7 +79,6 @@ void MainWindow::refreshHub() {
 
 void MainWindow::onPlayRequested(const GameMetadata& meta) {
     try{
-        m_gameOverActive = false; // Reset game over flag in case it was left active
         auto& reg = GameRegistry::instance();
         if (!reg.hasGame(meta.key)) {
             std::string keyStr = meta.key.toStdString();
@@ -102,10 +101,6 @@ void MainWindow::onPlayRequested(const GameMetadata& meta) {
 
 void MainWindow::onGameFinished(int score, const GameMetadata& meta) {
     try {
-        if (m_gameOverActive)
-            return; // ❗ ignore duplicates completely
-
-        m_gameOverActive = true;
         LOG_INFO(TAG, QString("Game finished: %1 (score: %2)").arg(meta.title).arg(score).toStdString());
         Database::instance().recordScore(meta.key, score);
 
@@ -130,12 +125,13 @@ void MainWindow::onGameFinished(int score, const GameMetadata& meta) {
             msg.addButton("Back to Hub", QMessageBox::RejectRole);
 
         msg.exec();
+
         QAbstractButton* clicked = msg.clickedButton();
 
+        LOG_DEBUG(TAG, QString("Dialog result: %1").arg(clicked == playAgainBtn ? "Play Again" : "Back to Hub").toStdString());
+
         if (clicked == playAgainBtn) {
-            QTimer::singleShot(0, this, [this, meta]() {
-                onPlayRequested(meta);
-            });
+            onPlayRequested(meta);
         } else if (clicked == backBtn) {
             QTimer::singleShot(0, this, [this]() {
                 onReturnToHub();
@@ -143,13 +139,14 @@ void MainWindow::onGameFinished(int score, const GameMetadata& meta) {
         }
     } catch (const std::exception& e) {
         LOG_ERROR(TAG, "Failed to record score: " + std::string(e.what()));
-        onReturnToHub();
+        QTimer::singleShot(0, this, [this]() {
+            onReturnToHub();
+        });
     }
 }
 
 void MainWindow::onReturnToHub() {
     try {
-        m_gameOverActive = false; // Reset the game over flag
         LOG_INFO(TAG, "Returning to hub view.");
         m_runner->stopCurrent();
         m_stack->setCurrentIndex(0);

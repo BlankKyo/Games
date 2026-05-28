@@ -34,5 +34,4 @@ private:
     QStackedWidget* m_stack   = nullptr;
     HubView*        m_hub     = nullptr;
     GameRunner*     m_runner  = nullptr;
-    bool m_gameOverActive = false; // flag to prevent duplicate game over handling
 };

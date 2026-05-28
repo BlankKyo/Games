@@ -37,6 +37,10 @@ private:
     Dir            m_dir     = {1, 0};
     Dir            m_nextDir = {1, 0};
     double         m_accum   = 0.0;
-    double         m_speed   = 0.24; // seconds per step
+    double         m_speed   = 0.12; // seconds per step
     bool           m_alive   = false;
+
+    // Death animation
+    bool           m_dead    = false;
+    double         m_deadTimer = 0.0;
 };
