@@ -59,7 +59,7 @@ GameRunner::GameRunner(QWidget* parent)
         root->addStretch(1);
 
         connect(m_pauseBtn, &QPushButton::clicked, this, &GameRunner::togglePause);
-        connect(m_quitBtn,  &QPushButton::clicked, this, [this]{ stopCurrent(); emit returnToHub(); });
+        connect(m_quitBtn,  &QPushButton::clicked, this, [this]{ stopCurrent(); LOG_DEBUG(TAG, "Quit button clicked."); emit returnToHub(); });
         connect(&m_timer,   &QTimer::timeout,      this, &GameRunner::tick);
         LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)));
     } catch (const std::exception& e) {
@@ -122,6 +122,7 @@ void GameRunner::tick() {
 }
 
 void GameRunner::onGameOver(int score) {
+    LOG_DEBUG(TAG, "Game over! Final score: " + std::to_string(score));
     m_timer.stop();
     emit gameFinished(score, m_meta);
 }
