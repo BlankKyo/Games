@@ -1,6 +1,6 @@
 #pragma once
 #include <QFrame>
-#include "core/GameMetadata.h"
+#include "core/Metadata.h"
 
 class QLabel;
 class QPushButton;

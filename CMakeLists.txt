@@ -36,11 +36,18 @@ set(SOURCES
     src/core/GameRunner.cpp
     include/core/GameRegistry.h
     src/core/GameRegistry.cpp
-    include/core/GameMetadata.h
+    include/core/Metadata.h
     include/core/Database.h
     src/core/Database.cpp
+    include/core/UserSession.h
 
     # UI
+    include/ui/LoginWindow.h
+    src/ui/LoginWindow.cpp
+    include/ui/RegisterDialog.h
+    src/ui/RegisterDialog.cpp
+    include/ui/AdminPanel.h
+    src/ui/AdminPanel.cpp
     include/ui/MainWindow.h
     src/ui/MainWindow.cpp
     include/ui/HubView.h
