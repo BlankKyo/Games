@@ -20,3 +20,16 @@ struct GameMetadata {
     int       highScore    = 0;
     bool      isBuiltin    = false;
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// UserRecord — plain data struct for a user account
+// ─────────────────────────────────────────────────────────────────────────────
+struct UserRecord {
+    int     id           = -1;
+    QString username;
+    QString displayName;
+    QString passwordHash;
+    QString role;          // "admin" | "user"
+    QString avatarColor;
+    QString createdAt;
+};

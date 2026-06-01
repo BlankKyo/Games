@@ -1,7 +1,7 @@
 #pragma once
 #include <QWidget>
 #include <QList>
-#include "core/GameMetadata.h"
+#include "core/Metadata.h"
 
 class QScrollArea;
 class QGridLayout;

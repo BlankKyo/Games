@@ -6,7 +6,7 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include "GameBase.h"
-#include "GameMetadata.h"
+#include "Metadata.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GameRunner

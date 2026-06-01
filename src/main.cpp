@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QFontDatabase>
 #include <QStyleFactory>
+#include "ui/LoginWindow.h"
 #include "ui/MainWindow.h"
 #include "core/Database.h"
 #include "core/GameRegistry.h"
@@ -88,10 +89,25 @@ int main(int argc, char* argv[]) {
         LOG_ERROR(TAG, "Could not open database – scores will not persist.", __FILE__, __LINE__);
     }
 
-    // ── Launch ────────────────────────────────────────────────────────────
-    MainWindow window;
-    window.show();
+    // ── Login → MainWindow flow ───────────────────────────────────────────
+    LoginWindow* loginWindow = new LoginWindow();
+    loginWindow->show();
 
+    MainWindow* mainWindow = nullptr;
+
+    QObject::connect(loginWindow, &LoginWindow::loginSucceeded, [&]() {
+        loginWindow->hide();
+
+        mainWindow = new MainWindow();
+        mainWindow->show();
+
+        // When MainWindow closes (e.g. logout), come back to login
+        QObject::connect(mainWindow, &MainWindow::loggedOut, [&]() {
+            mainWindow->deleteLater();
+            mainWindow = nullptr;
+            loginWindow->show();
+        });
+    });
     const int ret = app.exec();
 
     Database::instance().close();
