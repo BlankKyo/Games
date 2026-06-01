@@ -35,10 +35,10 @@ static void qtHandler(QtMsgType type, const QMessageLogContext&, const QString& 
     std::string m = msg.toStdString();
 
     switch (type) {
-        case QtDebugMsg:    Logger::instance().debug  (extractQtObjectName(m), "[Qt] " + m); break;
-        case QtWarningMsg:  Logger::instance().warning(extractQtObjectName(m), "[Qt] " + m); break;
-        case QtCriticalMsg: Logger::instance().error  (extractQtObjectName(m), "[Qt] " + m); break;
-        case QtFatalMsg:    Logger::instance().error  (extractQtObjectName(m), "[Qt][FATAL] " + m); break;
+        case QtDebugMsg:    Logger::instance().debug  (extractQtObjectName(m), "[Qt] " + m, __FILE__, __LINE__); break;
+        case QtWarningMsg:  Logger::instance().warning(extractQtObjectName(m), "[Qt] " + m, __FILE__, __LINE__); break;
+        case QtCriticalMsg: Logger::instance().error  (extractQtObjectName(m), "[Qt] " + m, __FILE__, __LINE__); break;
+        case QtFatalMsg:    Logger::instance().error  (extractQtObjectName(m), "[Qt][FATAL] " + m, __FILE__, __LINE__); break;
         default: break;
     }
 }
@@ -55,9 +55,9 @@ int main(int argc, char* argv[]) {
         Logger::instance().init(logFile, parseLogLevel(logLevel));
         qInstallMessageHandler(qtHandler);
     } catch (const std::exception& e) {
-        LOG_WARNING(TAG, "Failed to initialize logger: " + std::string(e.what()));
+        LOG_WARNING(TAG, "Failed to initialize logger: " + std::string(e.what()), __FILE__, __LINE__);
     }
-    LOG_INFO(TAG, "Logger initialized.");
+    LOG_INFO(TAG, "Logger initialized.", __FILE__, __LINE__);
 
     QApplication app(argc, argv);
 
@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
 
     // ── Open database ──────────────────────────────────────────────────────
     if (!Database::instance().open()) {
-        LOG_ERROR(TAG, "Could not open database – scores will not persist.");
+        LOG_ERROR(TAG, "Could not open database – scores will not persist.", __FILE__, __LINE__);
     }
 
     // ── Login → MainWindow flow ───────────────────────────────────────────

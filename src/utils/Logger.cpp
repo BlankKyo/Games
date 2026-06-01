@@ -46,7 +46,11 @@ void Logger::init(const std::string& logFilePath, LogLevel minLevel) {
 // ─────────────────────────────────────────────
 //  log() — core method
 // ─────────────────────────────────────────────
-void Logger::log(LogLevel level, const std::string& component, const std::string& message) {
+void Logger::log(LogLevel level,
+                 const std::string& component,
+                 const std::string& message,
+                 const char* file,
+                 int line) {
     if (level < minLevel_) return;
 
     std::lock_guard<std::mutex> lock(mutex_);
@@ -57,31 +61,43 @@ void Logger::log(LogLevel level, const std::string& component, const std::string
     const std::string reset = "\033[0m";
 
     // ── Format ──────────────────────────────────────────────
-    // [2024-01-02 13:45:01] [INFO ]  [MarketData] Loaded 20 bars
-    std::ostringstream line;
-    line << "[" << ts << "]"
-         << " [" << lvl << "] "
-         << " [" << component << "] "
-         << message;
+    // [2026-06-01 20:34:37] [INFO] [MarketData] [core/name.cpp:42] Loaded 20 bars
+    std::ostringstream msg;
+    msg << "[" << ts << "]"
+        << " [" << lvl << "] "
+        << " [" << component << "] "
+        << "[" << file << ":" << line << "] "
+        << message;
 
     // ── Write to file (no color codes) ──────────────────────
     if (initialised_ && logFile_.is_open()) {
-        logFile_ << line.str() << "\n";
+        logFile_ << msg.str() << "\n";
         logFile_.flush();
     }
 
     // ── Write to terminal (with color) ──────────────────────
     std::ostream& out = (level == LogLevel::ERROR) ? std::cerr : std::cout;
-    out << color << line.str() << reset << "\n";
+    out << color << msg.str() << reset << "\n";
 }
 
 // ─────────────────────────────────────────────
 //  Convenience wrappers
 // ─────────────────────────────────────────────
-void Logger::debug  (const std::string& c, const std::string& m) { log(LogLevel::DEBUG,   c, m); }
-void Logger::info   (const std::string& c, const std::string& m) { log(LogLevel::INFO,    c, m); }
-void Logger::warning(const std::string& c, const std::string& m) { log(LogLevel::WARNING, c, m); }
-void Logger::error  (const std::string& c, const std::string& m) { log(LogLevel::ERROR,   c, m); }
+void Logger::debug(const std::string& c, const std::string& m, const char* file, int line) {
+    log(LogLevel::DEBUG, c, m, file, line);
+}
+
+void Logger::info(const std::string& c, const std::string& m, const char* file, int line) {
+    log(LogLevel::INFO, c, m, file, line);
+}
+
+void Logger::warning(const std::string& c, const std::string& m, const char* file, int line) {
+    log(LogLevel::WARNING, c, m, file, line);
+}
+
+void Logger::error(const std::string& c, const std::string& m, const char* file, int line) {
+    log(LogLevel::ERROR, c, m, file, line);
+}
 
 // ─────────────────────────────────────────────
 //  close()

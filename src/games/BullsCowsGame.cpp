@@ -13,8 +13,8 @@ static const char* TAG = "BullsCowsGame";
 BullsCowsGame::BullsCowsGame(QWidget* parent) : GameBase(parent) {
     try {
         // Logging:
-        LOG_INFO(TAG, "Initializing BullsCowsGame.");
-        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)));
+        LOG_INFO(TAG, "Initializing BullsCowsGame.", __FILE__, __LINE__);
+        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)), __FILE__, __LINE__);
 
         // Body:
         setFixedSize(W, H);
@@ -41,12 +41,12 @@ BullsCowsGame::BullsCowsGame(QWidget* parent) : GameBase(parent) {
         connect(easyModeBtn, &QPushButton::toggled, this, &BullsCowsGame::setEasyModeEnabled);
         
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to initialize BullsCowsGame: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to initialize BullsCowsGame: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
 BullsCowsGame::~BullsCowsGame() {
-    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)));
+    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)), __FILE__, __LINE__);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -122,7 +122,7 @@ void BullsCowsGame::keyPressEvent(QKeyEvent* e) {
             }
         }
     } catch (const std::exception& ex) {
-        LOG_ERROR(TAG, "Error in keyPressEvent: " + std::string(ex.what()));
+        LOG_ERROR(TAG, "Error in keyPressEvent: " + std::string(ex.what()), __FILE__, __LINE__);
     }
 }
 

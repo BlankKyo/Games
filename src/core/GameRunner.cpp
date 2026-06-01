@@ -13,7 +13,7 @@ GameRunner::GameRunner(QWidget* parent)
     : QWidget(parent)
 {
     try {
-        LOG_INFO(TAG, "Initializing GameRunner UI.");
+        LOG_INFO(TAG, "Initializing GameRunner UI.", __FILE__, __LINE__);
         auto* root = new QVBoxLayout(this);
         root->setContentsMargins(0, 0, 0, 0);
         root->setSpacing(0);
@@ -59,17 +59,17 @@ GameRunner::GameRunner(QWidget* parent)
         root->addStretch(1);
 
         connect(m_pauseBtn, &QPushButton::clicked, this, &GameRunner::togglePause);
-        connect(m_quitBtn,  &QPushButton::clicked, this, [this]{ stopCurrent(); LOG_DEBUG(TAG, "Quit button clicked."); emit returnToHub(); });
+        connect(m_quitBtn,  &QPushButton::clicked, this, [this]{ stopCurrent(); LOG_DEBUG(TAG, "Quit button clicked.", __FILE__, __LINE__); emit returnToHub(); });
         connect(&m_timer,   &QTimer::timeout,      this, &GameRunner::tick);
-        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)));
+        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)), __FILE__, __LINE__);
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to initialize GameRunner UI: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to initialize GameRunner UI: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
 GameRunner::~GameRunner() {
     stopCurrent();
-    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)));
+    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)), __FILE__, __LINE__);
 }
 
 void GameRunner::runGame(GameBase* game, const GameMetadata& meta) {
@@ -97,7 +97,7 @@ void GameRunner::runGame(GameBase* game, const GameMetadata& meta) {
         m_elapsed.start();
         m_timer.start(TICK_MS);
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to run game: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to run game: " + std::string(e.what()), __FILE__, __LINE__);
         stopCurrent();
     }
 }
@@ -122,7 +122,7 @@ void GameRunner::tick() {
 }
 
 void GameRunner::onGameOver(int score) {
-    LOG_DEBUG(TAG, "Game over! Final score: " + std::to_string(score));
+    LOG_DEBUG(TAG, "Game over! Final score: " + std::to_string(score), __FILE__, __LINE__);
     m_timer.stop();
     emit gameFinished(score, m_meta);
 }

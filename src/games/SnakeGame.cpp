@@ -11,17 +11,17 @@ static const char* TAG = "SnakeGame";
 
 SnakeGame::SnakeGame(QWidget* parent) : GameBase(parent) {
     try {
-        LOG_INFO(TAG, "Initializing SnakeGame.");
+        LOG_INFO(TAG, "Initializing SnakeGame.", __FILE__, __LINE__);
         setFixedSize(COLS * CELL, ROWS * CELL);
         setStyleSheet("background:#080810;");
-        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)));
+        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)), __FILE__, __LINE__);
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to initialize SnakeGame: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to initialize SnakeGame: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
 SnakeGame::~SnakeGame() {
-    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)));
+    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)), __FILE__, __LINE__);
 }
 
 void SnakeGame::startGame() {
@@ -29,7 +29,7 @@ void SnakeGame::startGame() {
         reset();
         m_alive = true;
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to start game: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to start game: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
@@ -50,7 +50,7 @@ void SnakeGame::reset() {
         setScore(0);
         spawnFood();
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to reset game state: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to reset game state: " + std::string(e.what()), __FILE__, __LINE__);
     }   
 }
  
@@ -63,7 +63,7 @@ void SnakeGame::spawnFood() {
         } while (std::find(m_snake.begin(), m_snake.end(), p) != m_snake.end());
         m_food = p;
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to spawn food: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to spawn food: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
@@ -74,7 +74,7 @@ bool SnakeGame::checkCollision() const {
             if (m_snake[i] == head) return true;
         return false;
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Error during collision check: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Error during collision check: " + std::string(e.what()), __FILE__, __LINE__);
         return false;
     }
 }
@@ -83,7 +83,7 @@ void SnakeGame::update(double dt) {
     try {
         // change death check so that we can emit gameOver signal with final score after death animation
         if (!m_alive) {
-            LOG_DEBUG(TAG, "Snake died. Final score: " + std::to_string(m_score));
+            LOG_DEBUG(TAG, "Snake died. Final score: " + std::to_string(m_score), __FILE__, __LINE__);
             emit gameOver(m_score);
             return;
         }
@@ -114,7 +114,7 @@ void SnakeGame::update(double dt) {
             m_snake.pop_back();
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Error during game update: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Error during game update: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
@@ -128,7 +128,7 @@ void SnakeGame::keyPressEvent(QKeyEvent* e) {
         default: GameBase::keyPressEvent(e);
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to handle key press event: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to handle key press event: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 void SnakeGame::paintEvent(QPaintEvent*) {
@@ -169,6 +169,6 @@ void SnakeGame::paintEvent(QPaintEvent*) {
             p.drawText(rect(), Qt::AlignCenter, "GAME OVER");
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Error during paint event: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Error during paint event: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }

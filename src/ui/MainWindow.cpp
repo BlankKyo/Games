@@ -73,42 +73,7 @@ QWidget* MainWindow::buildUserBar() {
         row->addWidget(roleBadge);
     }
 
-    row->addStretch();
-
-    // ── Admin panel button (admins only) ──────────────────────────────────
-    if (session.isAdmin()) {
-        auto* adminBtn = new QPushButton("⚙ Admin", bar);
-        adminBtn->setFixedHeight(28);
-        adminBtn->setCursor(Qt::PointingHandCursor);
-        adminBtn->setStyleSheet(R"(
-            QPushButton { background:#1e1e2e; color:#aaaacc; border:1px solid #2a2a40;
-                          border-radius:6px; font-size:12px; padding:0 12px; }
-            QPushButton:hover { background:#2a2a40; color:#ffffff; }
-        )");
-        connect(adminBtn, &QPushButton::clicked, this, &MainWindow::onAdminPanel);
-        row->addWidget(adminBtn);
-    }
-
-    // ── Logout button ─────────────────────────────────────────────────────
-    auto* logoutBtn = new QPushButton("Logout", bar);
-    logoutBtn->setFixedHeight(28);
-    logoutBtn->setCursor(Qt::PointingHandCursor);
-    logoutBtn->setStyleSheet(R"(
-        QPushButton { background:transparent; color:#666680; border:1px solid #2a2a40;
-                      border-radius:6px; font-size:12px; padding:0 12px; }
-        QPushButton:hover { color:#ff4d6d; border-color:#ff4d6d; }
-    )");
-    connect(logoutBtn, &QPushButton::clicked, this, &MainWindow::onLogout);
-    row->addWidget(logoutBtn);
-
-    return bar;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Constructor
-// ─────────────────────────────────────────────────────────────────────────────
-MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
-    LOG_INFO(TAG, "Initializing MainWindow UI.");
+    LOG_INFO(TAG, "Initializing MainWindow UI.", __FILE__, __LINE__);
     setWindowTitle("Game Hub");
     setMinimumSize(960, 640);
     resize(1100, 700);
@@ -141,11 +106,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     seedBuiltins();
     refreshHub();
-    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)));
+    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)), __FILE__, __LINE__);
 }
 
 MainWindow::~MainWindow() {
-    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)));
+    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)), __FILE__, __LINE__);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -194,8 +159,9 @@ void MainWindow::seedBuiltins() {
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to register builtin games: " + std::string(e.what()));
-    }
+        LOG_ERROR(TAG, "Failed to register builtin games: " + std::string(e.what()), __FILE__, __LINE__);
+        return;
+     }
 }
 
 void MainWindow::refreshHub() {
@@ -207,16 +173,21 @@ void MainWindow::onPlayRequested(const GameMetadata& meta) {
         m_gameOverActive = false;
         auto& reg = GameRegistry::instance();
         if (!reg.hasGame(meta.key)) {
-            LOG_WARNING(TAG, "No game registered for key \"" + meta.key.toStdString() + "\".");
+            std::string keyStr = meta.key.toStdString();
+            LOG_WARNING(TAG, "No game registered for key \"" + keyStr + "\".", __FILE__, __LINE__);
             return;
         }
 
         GameBase* game = reg.create(meta.key, nullptr);
         m_runner->runGame(game, meta);
         m_stack->setCurrentIndex(1);
-        QTimer::singleShot(0, game, [game]() { game->setFocus(); });
-    } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to start game: " + std::string(e.what()));
+        QTimer::singleShot(0, game, [game]() {
+            game->setFocus();
+        });
+    }
+    catch (const std::exception& e) {
+        LOG_ERROR(TAG, "Failed to start game: " + std::string(e.what()), __FILE__, __LINE__);
+        return;
     }
 }
 
@@ -224,8 +195,7 @@ void MainWindow::onGameFinished(int score, const GameMetadata& meta) {
     try {
         if (m_gameOverActive) return;
         m_gameOverActive = true;
-
-        LOG_INFO(TAG, QString("Game finished: %1 (score: %2)").arg(meta.title).arg(score).toStdString());
+        LOG_INFO(TAG, QString("Game finished: %1 (score: %2)").arg(meta.title).arg(score).toStdString(), __FILE__, __LINE__);
         Database::instance().recordScore(meta.key, score);
 
         QMessageBox msg(this);
@@ -245,20 +215,20 @@ void MainWindow::onGameFinished(int score, const GameMetadata& meta) {
             QTimer::singleShot(0, this, [this]() { onReturnToHub(); });
 
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to record score: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to record score: " + std::string(e.what()), __FILE__, __LINE__);
         onReturnToHub();
     }
 }
 
 void MainWindow::onReturnToHub() {
     try {
-        m_gameOverActive = false;
-        LOG_INFO(TAG, "Returning to hub view.");
+        m_gameOverActive = false; // Reset the game over flag
+        LOG_INFO(TAG, "Returning to hub view.", __FILE__, __LINE__);
         m_runner->stopCurrent();
         m_stack->setCurrentIndex(0);
         refreshHub();
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to return to hub: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to return to hub: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
@@ -269,18 +239,18 @@ void MainWindow::onCreateRequested() {
 
         GameMetadata meta = dlg.result();
         if (meta.title.isEmpty()) {
-            LOG_WARNING(TAG, "Game creation failed: Title cannot be empty.");
+            LOG_WARNING(TAG, "Game creation failed: Title cannot be empty.", __FILE__, __LINE__);
             return;
         }
         if (!GameRegistry::instance().hasGame(meta.key)) {
-            LOG_WARNING(TAG, "Game creation failed: Unknown game type.");
+            LOG_WARNING(TAG, "Game creation failed: Unknown game type.", __FILE__, __LINE__);
             return;
         }
 
         Database::instance().upsertGame(meta);
         refreshHub();
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to create game: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to create game: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
@@ -294,7 +264,7 @@ void MainWindow::onDeleteRequested(int id) {
             refreshHub();
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to delete game: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to delete game: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
@@ -303,6 +273,6 @@ void MainWindow::onScoreboardRequested(const GameMetadata& meta) {
         ScoreboardDialog dlg(meta, this);
         dlg.exec();
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to open scoreboard: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to open scoreboard: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
