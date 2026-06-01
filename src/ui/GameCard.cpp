@@ -11,7 +11,7 @@ GameCard::GameCard(const GameMetadata& meta, QWidget* parent)
     : QFrame(parent), m_meta(meta)
 {
     try {
-        LOG_INFO(TAG, "Initializing game card for \"" + meta.title.toStdString() + "\".");
+        LOG_INFO(TAG, "Initializing game card for \"" + meta.title.toStdString() + "\".", __FILE__, __LINE__);
         setFixedSize(220, 190);
         
         setStyleSheet(R"(
@@ -78,14 +78,14 @@ GameCard::GameCard(const GameMetadata& meta, QWidget* parent)
         connect(m_delBtn,   &QPushButton::clicked, this, [this]{ emit deleteRequested(m_meta.id); });
 
         refresh(meta);
-        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor of " + meta.title.toStdString(), this, sizeof(*this)));
+        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor of " + meta.title.toStdString(), this, sizeof(*this)), __FILE__, __LINE__);
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to initialize game card: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to initialize game card: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
 GameCard::~GameCard() {
-    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor of " + m_meta.title.toStdString(), this, sizeof(*this)));
+    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor of " + m_meta.title.toStdString(), this, sizeof(*this)), __FILE__, __LINE__);
 }
 
 void GameCard::refresh(const GameMetadata& meta) {
@@ -96,6 +96,6 @@ void GameCard::refresh(const GameMetadata& meta) {
         m_statsLabel->setText(
             QString("Played: %1  ·  Best: %2").arg(meta.timesPlayed).arg(meta.highScore));
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to refresh game card: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to refresh game card: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }

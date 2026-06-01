@@ -11,30 +11,30 @@
 static const char* TAG = "Database";
 
 Database::Database() {
-    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)));
+    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)), __FILE__, __LINE__);
 }
 
 Database::~Database() {
     close();
-    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)));
+    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)), __FILE__, __LINE__);
 }
 bool Database::open() {
     try {
         const QString dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
         QDir().mkpath(dir);
         const QString path = dir + "/gamehub.db";
-        LOG_DEBUG(TAG, "Opening database at: " + path.toStdString());
+        LOG_DEBUG(TAG, "Opening database at: " + path.toStdString(), __FILE__, __LINE__);
 
         m_db = QSqlDatabase::addDatabase("QSQLITE", "gamehub");
         m_db.setDatabaseName(path);
 
         if (!m_db.open()) {
-            LOG_ERROR(TAG, "Failed to open DB: " + m_db.lastError().text().toStdString());
+            LOG_ERROR(TAG, "Failed to open DB: " + m_db.lastError().text().toStdString(), __FILE__, __LINE__);
             return false;
         }
         return migrate();
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during database open: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during database open: " + std::string(e.what()), __FILE__, __LINE__);
         return false;
     }
 }
@@ -43,7 +43,7 @@ void Database::close() {
     try {
         m_db.close();
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during database close: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during database close: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
@@ -51,7 +51,7 @@ bool Database::isOpen() const {
     try {
         return m_db.isOpen();
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception while checking database open status: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception while checking database open status: " + std::string(e.what()), __FILE__, __LINE__);
         return false;
     }
 }
@@ -92,11 +92,11 @@ bool Database::migrate() {
         )");
 
         if (!ok)
-            LOG_WARNING(TAG, "Database::migrate error: " + q.lastError().text().toStdString());
+            LOG_WARNING(TAG, "Database::migrate error: " + q.lastError().text().toStdString(), __FILE__, __LINE__);
 
         return ok;
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during database migration: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during database migration: " + std::string(e.what()), __FILE__, __LINE__);
         return false;
     }
 }
@@ -121,7 +121,7 @@ bool Database::upsertGame(GameMetadata& meta) {
         q.bindValue(":builtin", meta.isBuiltin ? 1 : 0);
 
         if (!q.exec()) {
-            LOG_ERROR(TAG, "upsertGame failed: " + q.lastError().text().toStdString());
+            LOG_ERROR(TAG, "upsertGame failed: " + q.lastError().text().toStdString(), __FILE__, __LINE__);
             return false;
         }
 
@@ -134,7 +134,7 @@ bool Database::upsertGame(GameMetadata& meta) {
 
         return true;
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during upsertGame: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during upsertGame: " + std::string(e.what()), __FILE__, __LINE__);
         return false;
     }
 }
@@ -146,7 +146,7 @@ bool Database::deleteGame(int id) {
         q.bindValue(":id", id);
         return q.exec();
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during deleteGame: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during deleteGame: " + std::string(e.what()), __FILE__, __LINE__);
         return false;
     }
 }
@@ -175,7 +175,7 @@ GameMetadata Database::gameByKey(const QString& key) const {
         if (q.exec() && q.next()) return rowToMeta(q);
         return {};
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during gameByKey: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during gameByKey: " + std::string(e.what()), __FILE__, __LINE__);
         return {};
     }
 }
@@ -187,7 +187,7 @@ QList<GameMetadata> Database::allGames() const {
         while (q.next()) list.append(rowToMeta(q));
         return list;
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during allGames: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during allGames: " + std::string(e.what()), __FILE__, __LINE__);
         return {};
     }
 }
@@ -199,7 +199,7 @@ bool Database::recordScore(const QString& gameKey, int score) {
         q.bindValue(":key",   gameKey);
         q.bindValue(":score", score);
         if (!q.exec()) {
-            LOG_ERROR(TAG, "recordScore failed: " + q.lastError().text().toStdString());
+            LOG_ERROR(TAG, "recordScore failed: " + q.lastError().text().toStdString(), __FILE__, __LINE__);
             return false;
         }
 
@@ -215,7 +215,7 @@ bool Database::recordScore(const QString& gameKey, int score) {
         q.bindValue(":key",   gameKey);
         return q.exec();
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during recordScore: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during recordScore: " + std::string(e.what()), __FILE__, __LINE__);
         return false;
     }
 }
@@ -228,7 +228,7 @@ int Database::highScore(const QString& gameKey) const {
         if (q.exec() && q.next()) return q.value(0).toInt();
         return 0;
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during highScore: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during highScore: " + std::string(e.what()), __FILE__, __LINE__);
         return 0;
     }
 }
@@ -247,7 +247,7 @@ QList<Database::ScoreEntry> Database::topScores(const QString& gameKey, int limi
         }
         return list;
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during topScores: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during topScores: " + std::string(e.what()), __FILE__, __LINE__);
         return {};
     }
 }

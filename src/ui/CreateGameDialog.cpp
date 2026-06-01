@@ -13,7 +13,7 @@ static const char* TAG = "CreateGameDialog";
 
 CreateGameDialog::CreateGameDialog(QWidget* parent) : QDialog(parent) {
     try {
-        LOG_INFO(TAG, "Initializing CreateGameDialog UI.");
+        LOG_INFO(TAG, "Initializing CreateGameDialog UI.", __FILE__, __LINE__);
 
         setWindowTitle("Add Game");
         setMinimumWidth(400);
@@ -77,14 +77,14 @@ CreateGameDialog::CreateGameDialog(QWidget* parent) : QDialog(parent) {
         });
         m_typeCombo->currentTextChanged(m_typeCombo->currentText());
 
-        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)));
+        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)), __FILE__, __LINE__);
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to initialize CreateGameDialog: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to initialize CreateGameDialog: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
 CreateGameDialog::~CreateGameDialog() {
-    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)));
+    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)), __FILE__, __LINE__);
 }
 
 GameMetadata CreateGameDialog::result() const {
@@ -98,7 +98,7 @@ GameMetadata CreateGameDialog::result() const {
         m.isBuiltin   = false;
         return m;
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to retrieve game metadata from dialog: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to retrieve game metadata from dialog: " + std::string(e.what()), __FILE__, __LINE__);
         return {};  
     }
 }

@@ -13,17 +13,17 @@ static const QColor BRICK_COLORS[] = {
 
 BreakoutGame::BreakoutGame(QWidget* parent) : GameBase(parent) {
     try {
-        LOG_INFO(TAG, "Initializing BreakoutGame.");
+        LOG_INFO(TAG, "Initializing BreakoutGame.", __FILE__, __LINE__);
         setFixedSize((int)W, (int)H);
         setStyleSheet("background:#080810;");
-        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)));
+        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)), __FILE__, __LINE__);
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to initialize BreakoutGame: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to initialize BreakoutGame: " + std::string(e.what()), __FILE__, __LINE__);
     }   
 }
 
 BreakoutGame::~BreakoutGame() {
-    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)));
+    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)), __FILE__, __LINE__);
 }
 
 void BreakoutGame::startGame() {
@@ -56,7 +56,7 @@ void BreakoutGame::buildLevel(int level) {
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to build level " + std::to_string(level) + ": " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to build level " + std::to_string(level) + ": " + std::string(e.what()), __FILE__, __LINE__);
     }   
 }
 
@@ -120,7 +120,7 @@ void BreakoutGame::update(double dt) {
             resetBall();
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Error during game update: " + std::string(e.what())); 
+        LOG_ERROR(TAG, "Error during game update: " + std::string(e.what()), __FILE__, __LINE__); 
     }
 }
 
@@ -150,7 +150,7 @@ void BreakoutGame::checkBrickCollision() {
             break; // one brick per frame
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Error during brick collision check: " + std::string(e.what())); 
+        LOG_ERROR(TAG, "Error during brick collision check: " + std::string(e.what()), __FILE__, __LINE__); 
     }   
 }
 
@@ -168,7 +168,7 @@ void BreakoutGame::keyPressEvent(QKeyEvent* e) {
         default: GameBase::keyPressEvent(e);
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Error during key press event: " + std::string(e.what())); 
+        LOG_ERROR(TAG, "Error during key press event: " + std::string(e.what()), __FILE__, __LINE__); 
     }   
 }
 
@@ -180,7 +180,7 @@ void BreakoutGame::keyReleaseEvent(QKeyEvent* e) {
         default: GameBase::keyReleaseEvent(e);
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Error during key release event: " + std::string(e.what())); 
+        LOG_ERROR(TAG, "Error during key release event: " + std::string(e.what()), __FILE__, __LINE__); 
     }   
 }
 
@@ -222,6 +222,6 @@ void BreakoutGame::paintEvent(QPaintEvent*) {
             p.drawText(rect(), Qt::AlignCenter, "Press SPACE to launch");
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Error during paint event: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Error during paint event: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }

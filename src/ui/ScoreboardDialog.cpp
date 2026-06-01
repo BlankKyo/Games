@@ -15,7 +15,7 @@ ScoreboardDialog::ScoreboardDialog(const GameMetadata& meta, QWidget* parent)
     : QDialog(parent)
 {
     try {
-        LOG_INFO(TAG, "Opening scoreboard for game \"" + meta.title.toStdString() + "\".");
+        LOG_INFO(TAG, "Opening scoreboard for game \"" + meta.title.toStdString() + "\".", __FILE__, __LINE__);
 
         setWindowTitle(QString("Scoreboard — %1").arg(meta.title));
         setMinimumSize(360, 400);
@@ -77,12 +77,12 @@ ScoreboardDialog::ScoreboardDialog(const GameMetadata& meta, QWidget* parent)
         btns->setStyleSheet("QPushButton { background:#1e1e30; color:#aaa; border:none; padding:7px 20px; border-radius:7px; }");
         connect(btns, &QDialogButtonBox::rejected, this, &QDialog::accept);
         root->addWidget(btns);
-        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)));
+        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)), __FILE__, __LINE__);
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to initialize ScoreboardDialog: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to initialize ScoreboardDialog: " + std::string(e.what()), __FILE__, __LINE__);
     }   
 }
 
 ScoreboardDialog::~ScoreboardDialog() {
-    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)));
+    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)), __FILE__, __LINE__);
 }

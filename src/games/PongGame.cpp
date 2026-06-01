@@ -9,17 +9,17 @@ static const char* TAG = "PongGame";
 
 PongGame::PongGame(QWidget* parent) : GameBase(parent) {
     try {
-        LOG_INFO(TAG, "Initializing PongGame.");
+        LOG_INFO(TAG, "Initializing PongGame.", __FILE__, __LINE__);
         setFixedSize((int)W, (int)H);
         setStyleSheet("background:#080810;");
-        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)));
+        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)), __FILE__, __LINE__);
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to initialize PongGame: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to initialize PongGame: " + std::string(e.what()), __FILE__, __LINE__);
     }  
 }
 
 PongGame::~PongGame() {
-    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)));
+    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)), __FILE__, __LINE__);
 }
 
 void PongGame::startGame() {
@@ -42,7 +42,7 @@ void PongGame::reset() {
         m_ballVel    = {dir * BALL_SPEED_INIT * std::cos(angle),
                         BALL_SPEED_INIT * std::sin(angle)};
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to reset game state: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to reset game state: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
@@ -56,7 +56,7 @@ void PongGame::checkPaddleCollision(QRectF& paddle) {
             m_ballVel.setY(rel * std::abs(m_ballVel.x()) * 0.75);
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Error during paddle collision check: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Error during paddle collision check: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
@@ -96,7 +96,7 @@ void PongGame::update(double dt) {
         if (m_scoreLeft >= 7 || m_scoreRight >= 7)
             emit gameOver(m_score);
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Error during game update: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Error during game update: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
@@ -110,7 +110,7 @@ void PongGame::keyPressEvent(QKeyEvent* e) {
         default: GameBase::keyPressEvent(e);
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Error during key press event: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Error during key press event: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
@@ -124,7 +124,7 @@ void PongGame::keyReleaseEvent(QKeyEvent* e) {
         default: GameBase::keyReleaseEvent(e);
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Error during key release event: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Error during key release event: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
@@ -165,6 +165,6 @@ void PongGame::paintEvent(QPaintEvent*) {
         p.drawText(20, (int)H - 10, "W/S");
         p.drawText((int)W - 40, (int)H - 10, "↑/↓");
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Error during paint event: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Error during paint event: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }

@@ -14,7 +14,7 @@ static const char* TAG = "HubView";
 
 HubView::HubView(QWidget* parent) : QWidget(parent) {
     try {
-        LOG_INFO(TAG, "Initializing HubView UI.");
+        LOG_INFO(TAG, "Initializing HubView UI.", __FILE__, __LINE__);
 
         setStyleSheet("background:#080810;");
 
@@ -72,22 +72,22 @@ HubView::HubView(QWidget* parent) : QWidget(parent) {
 
         root->addWidget(header);
         root->addWidget(scroll, 1);
-        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)));
+        LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Constructor", this, sizeof(*this)), __FILE__, __LINE__);
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to initialize HubView: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to initialize HubView: " + std::string(e.what()), __FILE__, __LINE__);
     }
     
 }
 
 HubView::~HubView() {
-    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)));
+    LOG_DEBUG(TAG, MemoryUtils::formatLifecycleLog("Destructor", this, sizeof(*this)), __FILE__, __LINE__);
 }
 void HubView::clearCards() {
     try {
         for (auto* c : m_cards) c->deleteLater();
         m_cards.clear();
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to clear game cards: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to clear game cards: " + std::string(e.what()), __FILE__, __LINE__);
     }   
 }
 
@@ -106,7 +106,7 @@ void HubView::setGames(const QList<GameMetadata>& games) {
             ++i;
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Failed to set games in HubView: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Failed to set games in HubView: " + std::string(e.what()), __FILE__, __LINE__);
     }   
 }
 

@@ -33,13 +33,15 @@ public:
     // Core log method
     void log(LogLevel           level,
              const std::string& component,
-             const std::string& message);
+             const std::string& message,
+             const char* file,
+             int line);
 
     // Convenience wrappers
-    void debug  (const std::string& component, const std::string& msg);
-    void info   (const std::string& component, const std::string& msg);
-    void warning(const std::string& component, const std::string& msg);
-    void error  (const std::string& component, const std::string& msg);
+    void debug  (const std::string& component, const std::string& msg, const char* file, int line);
+    void info   (const std::string& component, const std::string& msg, const char* file, int line);
+    void warning(const std::string& component, const std::string& msg, const char* file, int line);
+    void error  (const std::string& component, const std::string& msg, const char* file, int line);
 
     // Change minimum level at runtime
     void setLevel(LogLevel level) { minLevel_ = level; }
@@ -69,7 +71,7 @@ private:
 // ─────────────────────────────────────────────
 //  Convenience macros — use these everywhere
 // ─────────────────────────────────────────────
-#define LOG_DEBUG(component, msg)   Logger::instance().debug(component, msg)
-#define LOG_INFO(component, msg)    Logger::instance().info(component, msg)
-#define LOG_WARNING(component, msg) Logger::instance().warning(component, msg)
-#define LOG_ERROR(component, msg)   Logger::instance().error(component, msg)
+#define LOG_DEBUG(component, msg, file, line)   Logger::instance().debug(component, msg, file, line)
+#define LOG_INFO(component, msg, file, line)    Logger::instance().info(component, msg, file, line)
+#define LOG_WARNING(component, msg, file, line) Logger::instance().warning(component, msg, file, line)
+#define LOG_ERROR(component, msg, file, line)   Logger::instance().error(component, msg, file, line)
