@@ -59,6 +59,8 @@ set(SOURCES
     src/games/PongGame.cpp
     include/games/BreakoutGame.h
     src/games/BreakoutGame.cpp
+    include/games/BullsCowsGame.h
+    src/games/BullsCowsGame.cpp
 
     # Utils
     include/utils/MemoryUtils.h
