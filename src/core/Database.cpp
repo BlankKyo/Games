@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QVariant>
+#include <QCryptographicHash>
 
 static const char* TAG = "Database";
 
@@ -59,12 +60,22 @@ bool Database::isOpen() const {
 bool Database::migrate() {
     try {
         QSqlQuery q(m_db);
-
-        // Enable WAL for better concurrency
         q.exec("PRAGMA journal_mode=WAL;");
         q.exec("PRAGMA foreign_keys=ON;");
 
         bool ok = true;
+        ok &= q.exec(R"(
+            CREATE TABLE IF NOT EXISTS users (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                username      TEXT    NOT NULL UNIQUE,
+                display_name  TEXT    NOT NULL,
+                password_hash TEXT    NOT NULL,
+                role          TEXT    NOT NULL DEFAULT 'user',
+                avatar_color  TEXT    NOT NULL DEFAULT '#7c3aed',
+                created_at    TEXT    DEFAULT (datetime('now'))
+            );
+        )");
+
         ok &= q.exec(R"(
             CREATE TABLE IF NOT EXISTS games (
                 id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -84,9 +95,11 @@ bool Database::migrate() {
         ok &= q.exec(R"(
             CREATE TABLE IF NOT EXISTS scores (
                 id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id    INTEGER NOT NULL,
                 game_key   TEXT    NOT NULL,
                 score      INTEGER NOT NULL,
                 played_at  TEXT    DEFAULT (datetime('now')),
+                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY(game_key) REFERENCES games(key) ON DELETE CASCADE
             );
         )");
@@ -249,5 +262,127 @@ QList<Database::ScoreEntry> Database::topScores(const QString& gameKey, int limi
     } catch (const std::exception& e) {
         LOG_ERROR(TAG, "Exception during topScores: " + std::string(e.what()));
         return {};
+    }
+}
+
+void Database::seedAdmin() {
+    try {
+        QSqlQuery q(m_db);
+        q.exec("SELECT COUNT(*) FROM users WHERE role = 'admin'");
+        if (q.next() && q.value(0).toInt() == 0) {
+            createUser("admin", "Administrator", "admin123", "admin", "#ff4d6d");
+            LOG_DEBUG(TAG, "Default admin created — username: admin / password: admin123");
+        }
+    } catch (const std::exception& e) {
+        LOG_ERROR(TAG, "Exception during seedAdmin: " + std::string(e.what()));
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Password hashing
+// ─────────────────────────────────────────────────────────────────────────────
+QString Database::hashPassword(const QString& password) {
+    return QString(QCryptographicHash::hash(
+        password.toUtf8(), QCryptographicHash::Sha256).toHex());
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  User CRUD
+// ─────────────────────────────────────────────────────────────────────────────
+bool Database::authenticate(const QString& username,
+                             const QString& password,
+                             UserRecord& outUser) const {
+    try {
+        QSqlQuery q(m_db);
+        q.prepare("SELECT * FROM users WHERE username = :u AND password_hash = :h");
+        q.bindValue(":u", username.trimmed().toLower());
+        q.bindValue(":h", hashPassword(password));
+        if (!q.exec() || !q.next()) return false;
+
+        outUser.id           = q.value("id").toInt();
+        outUser.username     = q.value("username").toString();
+        outUser.displayName  = q.value("display_name").toString();
+        outUser.passwordHash = q.value("password_hash").toString();
+        outUser.role         = q.value("role").toString();
+        outUser.avatarColor  = q.value("avatar_color").toString();
+        outUser.createdAt    = q.value("created_at").toString();
+        LOG_DEBUG(TAG, "User authenticated: " + outUser.username.toStdString());
+        return true;
+    } catch (const std::exception& e) {
+        LOG_ERROR(TAG, "Exception during authenticate: " + std::string(e.what()));
+        return false;
+    }
+}
+
+bool Database::createUser(const QString& username,
+                           const QString& displayName,
+                           const QString& password,
+                           const QString& role,
+                           const QString& avatarColor) {
+        try {
+            QSqlQuery q(m_db);
+            q.prepare(R"(
+                INSERT INTO users (username, display_name, password_hash, role, avatar_color)
+                VALUES (:u, :dn, :h, :r, :ac)
+            )");
+            q.bindValue(":u",  username.trimmed().toLower());
+            q.bindValue(":dn", displayName.trimmed());
+            q.bindValue(":h",  hashPassword(password));
+            q.bindValue(":r",  role);
+            q.bindValue(":ac", avatarColor);
+            if (!q.exec()) {
+                LOG_ERROR(TAG, "Exception during createUser: " + std::string(q.lastError().text().toStdString()));
+                return false;
+            }
+            LOG_DEBUG(TAG, "User created: " + username.toStdString());
+            return true;
+        } catch (const std::exception& e) {
+            LOG_ERROR(TAG, "Exception during createUser: " + std::string(e.what()));
+            return false;
+        }
+}
+
+bool Database::deleteUser(int id) {
+    try {
+        QSqlQuery q(m_db);
+        q.prepare("DELETE FROM users WHERE id = :id AND role != 'admin'");
+        q.bindValue(":id", id);
+        return q.exec();
+    } catch (const std::exception& e) {
+        LOG_ERROR(TAG, "Exception during deleteUser: " + std::string(e.what()));
+        return false;
+    }
+}
+
+bool Database::usernameExists(const QString& username) const {
+    try {
+        QSqlQuery q(m_db);
+        q.prepare("SELECT COUNT(*) FROM users WHERE username = :u");
+        q.bindValue(":u", username.trimmed().toLower());
+        return q.exec() && q.next() && q.value(0).toInt() > 0;
+    } catch (const std::exception& e) {
+        LOG_ERROR(TAG, "Exception during usernameExists: " + std::string(e.what()));
+        return false;
+    }
+}
+
+QList<UserRecord> Database::allUsers() const {
+    try {
+        QSqlQuery q("SELECT * FROM users ORDER BY role DESC, username ASC", m_db);
+        QList<UserRecord> list;
+        while (q.next()) {
+            UserRecord u;
+            u.id          = q.value("id").toInt();
+            u.username    = q.value("username").toString();
+            u.displayName = q.value("display_name").toString();
+            u.role        = q.value("role").toString();
+            u.avatarColor = q.value("avatar_color").toString();
+            u.createdAt   = q.value("created_at").toString();
+            list.append(u);
+        }
+        return list;
+    } catch (const std::exception& e) {
+        LOG_ERROR(TAG, "Exception during allUsers: " + std::string(e.what()));
+        return QList<UserRecord>();
     }
 }

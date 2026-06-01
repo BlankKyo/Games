@@ -1,6 +1,6 @@
 #pragma once
 #include <QDialog>
-#include "core/GameMetadata.h"
+#include "core/Metadata.h"
 
 class ScoreboardDialog : public QDialog {
     Q_OBJECT
