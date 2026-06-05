@@ -73,6 +73,41 @@ QWidget* MainWindow::buildUserBar() {
         row->addWidget(roleBadge);
     }
 
+    row->addStretch();
+
+    // ── Admin panel button (admins only) ──────────────────────────────────
+    if (session.isAdmin()) {
+        auto* adminBtn = new QPushButton("⚙ Admin", bar);
+        adminBtn->setFixedHeight(28);
+        adminBtn->setCursor(Qt::PointingHandCursor);
+        adminBtn->setStyleSheet(R"(
+            QPushButton { background:#1e1e2e; color:#aaaacc; border:1px solid #2a2a40;
+                          border-radius:6px; font-size:12px; padding:0 12px; }
+            QPushButton:hover { background:#2a2a40; color:#ffffff; }
+        )");
+        connect(adminBtn, &QPushButton::clicked, this, &MainWindow::onAdminPanel);
+        row->addWidget(adminBtn);
+    }
+
+    // ── Logout button ─────────────────────────────────────────────────────
+    auto* logoutBtn = new QPushButton("Logout", bar);
+    logoutBtn->setFixedHeight(28);
+    logoutBtn->setCursor(Qt::PointingHandCursor);
+    logoutBtn->setStyleSheet(R"(
+        QPushButton { background:transparent; color:#666680; border:1px solid #2a2a40;
+                      border-radius:6px; font-size:12px; padding:0 12px; }
+        QPushButton:hover { color:#ff4d6d; border-color:#ff4d6d; }
+    )");
+    connect(logoutBtn, &QPushButton::clicked, this, &MainWindow::onLogout);
+    row->addWidget(logoutBtn);
+
+    return bar;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Constructor
+// ─────────────────────────────────────────────────────────────────────────────
+MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     LOG_INFO(TAG, "Initializing MainWindow UI.", __FILE__, __LINE__);
     setWindowTitle("Game Hub");
     setMinimumSize(960, 640);

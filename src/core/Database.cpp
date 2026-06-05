@@ -271,10 +271,10 @@ void Database::seedAdmin() {
         q.exec("SELECT COUNT(*) FROM users WHERE role = 'admin'");
         if (q.next() && q.value(0).toInt() == 0) {
             createUser("admin", "Administrator", "admin123", "admin", "#ff4d6d");
-            LOG_DEBUG(TAG, "Default admin created — username: admin / password: admin123");
+            LOG_DEBUG(TAG, "Default admin created — username: admin / password: admin123", __FILE__, __LINE__);
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during seedAdmin: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during seedAdmin: " + std::string(e.what()), __FILE__, __LINE__);
     }
 }
 
@@ -306,10 +306,10 @@ bool Database::authenticate(const QString& username,
         outUser.role         = q.value("role").toString();
         outUser.avatarColor  = q.value("avatar_color").toString();
         outUser.createdAt    = q.value("created_at").toString();
-        LOG_DEBUG(TAG, "User authenticated: " + outUser.username.toStdString());
+        LOG_DEBUG(TAG, "User authenticated: " + outUser.username.toStdString(), __FILE__, __LINE__);
         return true;
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during authenticate: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during authenticate: " + std::string(e.what()), __FILE__, __LINE__);
         return false;
     }
 }
@@ -331,13 +331,13 @@ bool Database::createUser(const QString& username,
             q.bindValue(":r",  role);
             q.bindValue(":ac", avatarColor);
             if (!q.exec()) {
-                LOG_ERROR(TAG, "Exception during createUser: " + std::string(q.lastError().text().toStdString()));
+                LOG_ERROR(TAG, "Exception during createUser: " + std::string(q.lastError().text().toStdString()), __FILE__, __LINE__);
                 return false;
             }
-            LOG_DEBUG(TAG, "User created: " + username.toStdString());
+            LOG_DEBUG(TAG, "User created: " + username.toStdString(), __FILE__, __LINE__);
             return true;
         } catch (const std::exception& e) {
-            LOG_ERROR(TAG, "Exception during createUser: " + std::string(e.what()));
+            LOG_ERROR(TAG, "Exception during createUser: " + std::string(e.what()), __FILE__, __LINE__);
             return false;
         }
 }
@@ -349,7 +349,7 @@ bool Database::deleteUser(int id) {
         q.bindValue(":id", id);
         return q.exec();
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during deleteUser: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during deleteUser: " + std::string(e.what()), __FILE__, __LINE__);
         return false;
     }
 }
@@ -361,7 +361,7 @@ bool Database::usernameExists(const QString& username) const {
         q.bindValue(":u", username.trimmed().toLower());
         return q.exec() && q.next() && q.value(0).toInt() > 0;
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during usernameExists: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during usernameExists: " + std::string(e.what()), __FILE__, __LINE__);
         return false;
     }
 }
@@ -382,7 +382,7 @@ QList<UserRecord> Database::allUsers() const {
         }
         return list;
     } catch (const std::exception& e) {
-        LOG_ERROR(TAG, "Exception during allUsers: " + std::string(e.what()));
+        LOG_ERROR(TAG, "Exception during allUsers: " + std::string(e.what()), __FILE__, __LINE__);
         return QList<UserRecord>();
     }
 }
